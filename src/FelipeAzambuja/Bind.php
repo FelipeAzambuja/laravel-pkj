@@ -104,3 +104,171 @@ class jQuery
         }
     }
 }
+
+
+class UploadParser {
+
+    private $raw = "";
+
+    function __construct ( $name , $array = null ) {
+        if ( $array === null ) {
+            $array = $_FILES;
+        }
+        $this->raw = isset ( $array[$name] ) ? $array[$name] : null;
+    }
+
+    /**
+     * Get a extension of file
+     * @return string
+     */
+    function ext () {
+        if ( ! $this->is_ok () ) {
+            return false;
+        }
+        $ext = explode ( "/" , $this->mime () );
+        $ext = $ext[1];
+        if ( $ext === "vnd.oasis.opendocument.spreadsheet" ) {
+            $ext = "ods";
+        } else if ( $ext === "vnd.oasis.opendocument.text" ) {
+            $ext = "odt";
+        } else if ( $ext === "plain" ) {
+            $ext = "txt";
+        } else if ( $ext === "x-7z-compressed" ) {
+            $ext = "7z";
+        } else if ( $ext === "x-rar" ) {
+            $ext = "rar";
+        }
+        return $ext;
+    }
+
+    function mime () {
+        if ( ! $this->is_ok () ) {
+            return false;
+        }
+        return $this->raw['type'];
+    }
+
+    /**
+     * Return base64 format of file
+     * @return type
+     */
+    function base64 () {
+        if ( ! $this->is_ok () ) {
+            return false;
+        }
+        return base64_encode ( $this->data () );
+    }
+
+    /**
+     * Get binary of file
+     * @return type
+     */
+    function data () {
+        if ( ! $this->is_ok () ) {
+            return false;
+        }
+        return file_get_contents ( $this->raw['tmp_name'] );
+    }
+
+    /**
+     * Try a get name of file
+     * @return type
+     */
+    function name () {
+        if ( ! $this->is_ok () ) {
+            return false;
+        }
+        return $this->raw['name'];
+    }
+
+    /**
+     * Get my raw format dont use please
+     * @return type
+     */
+    function raw () {
+        return $this->raw;
+    }
+
+    /**
+     *
+     * @return int size in bytes
+     */
+    function size () {
+        if ( ! $this->is_ok () ) {
+            return false;
+        }
+        return $this->raw['size'];
+    }
+
+    function error_code () {
+        if ( $this->raw === null ) {
+            return 99;
+        }
+        return $this->raw['error'];
+    }
+
+    function error () {
+        return $this->codeToMessage ( $this->error_code () );
+    }
+
+    function is_ok () {
+        return $this->error_code () === 0;
+    }
+
+    private function codeToMessage ( $code ) {
+        switch ( $code ) {
+            case UPLOAD_ERR_OK:
+                $message = 'No error';
+            case UPLOAD_ERR_INI_SIZE:
+                $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
+                break;
+            case UPLOAD_ERR_FORM_SIZE:
+                $message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                $message = "The uploaded file was only partially uploaded";
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $message = "No file was uploaded";
+                break;
+            case UPLOAD_ERR_NO_TMP_DIR:
+                $message = "Missing a temporary folder";
+                break;
+            case UPLOAD_ERR_CANT_WRITE:
+                $message = "Failed to write file to disk";
+                break;
+            case UPLOAD_ERR_EXTENSION:
+                $message = "File upload stopped by extension";
+                break;
+
+            default:
+                $message = "Unknown upload error";
+                break;
+        }
+        return $message;
+    }
+
+    /**
+     * Save data in a file
+     * @param type $fileName
+     * @return boolean
+     */
+    function save ( $fileName = '' ) {
+        if ( $fileName === '' ) {
+            $fileName = $this->name ();
+        }
+        if ( strpos ( $fileName , '.' ) === false ) {
+            $fileName = $fileName . '.' . $this->ext ();
+        }
+        file_put_contents ( $fileName , $this->data () );
+    }
+
+    /**
+     *
+     * @return \Intervention\Image\Image
+     */
+    function image () {
+        return Intervention\Image\ImageManagerStatic::make ( $this->data() );
+    }
+
+}

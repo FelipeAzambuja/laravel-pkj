@@ -78,3 +78,12 @@ function js()
 function jquery($element = null){
     return new \FelipeAzambuja\jQuery($element);
 }
+
+/**
+ * Return a instance of upload parser
+ * @param type $value
+ * @return \FelipeAzambuja\UploadParser
+ */
+function upload_parser ( $value ) {
+    return new UploadParser ( $value );
+}
