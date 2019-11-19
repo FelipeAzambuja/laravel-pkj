@@ -1,0 +1,26 @@
+{
+    "name": "felipeaz/laravel-pkj",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Felipe Nunes Azambuja",
+            "email": "felipe@newbgp.com.br"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "doctrine/dbal": "^2.10"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "FelipeAzambuja\\PKJServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "FelipeAzambuja\\": "src"
+        }
+    }
+}
