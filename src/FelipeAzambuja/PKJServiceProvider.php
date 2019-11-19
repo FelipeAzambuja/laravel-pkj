@@ -24,7 +24,9 @@ class PKJServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadRoutesFrom(__DIR__.'/routes.php');
         include __DIR__ . '/database.php';
+        include __DIR__ . '/Bind.php';
+        $this->loadRoutesFrom(__DIR__.'/routes.php');
+
     }
 }
