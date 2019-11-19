@@ -9,10 +9,12 @@ class JS
     {
         return new jQuery($element);
     }
+
     public function alert($content)
     {
         echo 'alert(' . $this->prepare_value($content) . ');' . PHP_EOL;
     }
+
     public function confirm($content, $done = '', $page = '')
     {
         echo 'libpkj.confirm = confirm(' . $this->prepare_value($content) . ');' . PHP_EOL;
@@ -22,21 +24,49 @@ class JS
             echo 'libpkj.call("' . $done . '",{response:libpkj.confirm},"' . $page . '");' . PHP_EOL;
         }
     }
+
     public function console($content)
     {
         echo 'console.log(' . $this->prepare_value($content) . ');' . PHP_EOL;
     }
-    public function setInterval($action, $time)
-    { }
-    public function setTimeout($action, $time)
-    { }
 
+    public function setInterval($action, $time, $data = [], $page = '')
+    {
+        if ($page === '') {
+            echo 'libpkj.intervals["' . $action . '"] = setInterval(function(){
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ');
+            },' . $time . ');' . PHP_EOL;
+        } else {
+            echo 'libpkj.intervals["' . $action . '"] = setInterval(function(){
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ',"' . $page . '");
+            },' . $time . ');' . PHP_EOL;
+        }
+    }
+
+    public function setTimeout($action, $time, $data = [], $page = '')
+    {
+        if ($page === '') {
+            echo 'libpkj.timers["' . $action . '"] = setTimeout(function(){
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ');
+            },' . $time . ');' . PHP_EOL;
+        } else {
+            echo 'libpkj.timers["' . $action . '"] = setTimeout(function(){
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ',"' . $page . '");
+            },' . $time . ');' . PHP_EOL;
+        }
+    }
+    public function var($name, $data)
+    {
+        echo 'libpkj.data["'.$name.'"] = '.$this->prepare_value($data).';'.PHP_EOL;
+    }
     public function __call($name, $arguments)
     {
+        //melhorar arguments
         echo $name . "('" . implode("','", $arguments) . "');" . PHP_EOL;
     }
     public static function __callStatic($name, $arguments)
     {
+        //melhorar arguments
         echo $name . "('" . implode("','", $arguments) . "');" . PHP_EOL;
     }
 
@@ -58,11 +88,17 @@ class jQuery
     public function __call($name, $arguments)
     {
         if ($this->element) {
-            echo '$("' . $this->element . '").' . $name . "('" . implode("','", $arguments) . "');" . PHP_EOL;
+            if (count($arguments) > 0) {
+                //melhorar arguments
+                echo '$("' . $this->element . '").' . $name . "('" . implode("','", $arguments) . "');" . PHP_EOL;
+            } else {
+                echo '$("' . $this->element . '").' . $name . "();" . PHP_EOL;
+            }
         } else {
             if (count($arguments) > 0) {
                 echo '$' . $name . ".();" . PHP_EOL;
             } else {
+                //melhorar arguments
                 echo '$' . $name . ".('" . implode("','", $arguments) . "');" . PHP_EOL;
             }
         }

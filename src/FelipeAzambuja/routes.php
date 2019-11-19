@@ -60,7 +60,7 @@ Route::get('/laravel-pkj/lib', function () {
 /**
  * Return instance of js
  *
- * @return JS
+ * @return \FelipeAzambuja\JS
  */
 function js()
 {
@@ -73,8 +73,8 @@ function js()
  *
  * @param string $element
  *
- * @return jQuery
+ * @return \FelipeAzambuja\jQuery
  */
 function jquery($element = null){
-    return new jQuery($element);
+    return new \FelipeAzambuja\jQuery($element);
 }

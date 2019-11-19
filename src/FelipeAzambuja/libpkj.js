@@ -1,3 +1,9 @@
+libpkj.intervals = [];
+libpkj.timers = [];
+libpkj.data = [];
+
+libpkj.confirm = null;
+
 libpkj.onload = function () {
     if (typeof $.fn.ajaxForm == 'undefined') {
         var jquery = document.createElement("script");
@@ -55,9 +61,14 @@ libpkj.bindElement = function (e) {
     for (const event_name of event_list) {
         var event = je.attr(event_name);
         if (event !== undefined) {
-            $(e).bind(event_name, function () {
-                libpkj._element_call(this, event_name);
-            });
+            if (e.tagName === 'FORM' && event_name === 'load') {
+                libpkj._element_call(e, event_name);
+            } else {
+                je.on(event_name, function () {
+                    libpkj._element_call(e, event_name);
+                });
+            }
+
         }
     }
 };
@@ -81,6 +92,11 @@ libpkj.call = function (f, data = [], page) {
     } else {
         url = page + '/' + f;
     }
+    for (const key in libpkj.data) {
+        const element = libpkj.data[key];
+        data[key] = element;
+    }
+    data = Object.assign({}, data);
     $.post(url, data, function (response) {
         eval(response);
     });
@@ -127,6 +143,10 @@ libpkj._element_call = function (e, event_name) {
             }
         }
     }
+    for (const key in libpkj.data) {
+        const element = libpkj.data[key];
+        data[key] = element;
+    }
     var handler = function (response) {
         if (jqe.attr('lock') !== undefined) {
             jqe.removeClass('disabled');
@@ -138,6 +158,7 @@ libpkj._element_call = function (e, event_name) {
     } else {
         url = page + '/' + cmd;
     }
+    data = Object.assign({}, data);
     $(form).ajaxSubmit({
         url: url,
         type: 'POST',
