@@ -9,7 +9,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "doctrine/dbal": "^2.9"
+        "doctrine/dbal": "^2.9.2"
     },
     "extra": {
         "laravel": {
