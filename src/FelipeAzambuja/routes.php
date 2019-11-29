@@ -37,9 +37,9 @@ foreach ($arquivos as $arquivo) {
 foreach ($controllers as $c) {
     foreach ($c['functions'] as $f) {
         if ($f === 'index') {
-            Route::any($c['path'], $c['namespace'] . '\\' . $c['class'] . '@index');
+            Route::any($c['path'], $c['namespace'] . '\\' . $c['class'] . '@index')->middleware('web');
         } else {
-            Route::any($c['path'] . '/' . $f, $c['namespace'] . '\\' . $c['class'] . '@' . $f);
+            Route::any($c['path'] . '/' . $f, $c['namespace'] . '\\' . $c['class'] . '@' . $f)->middleware('web');
         }
     }
 }
