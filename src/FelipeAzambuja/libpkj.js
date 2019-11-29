@@ -22,14 +22,17 @@ libpkj.onload = function () {
             }
         }
     });
-    observer.observe(document.body, {
-        attributes: true,
-        childList: true,
-        subtree: true
-    });
-    $('input,select,a,button,img,textarea,form,li').each(function (i, e) {
-        libpkj.bindElement(e);
-    });
+    document.body.onload = function () {
+        observer.observe(document.body, {
+            attributes: true,
+            childList: true,
+            subtree: true
+        });
+        $('input,select,a,button,img,textarea,form,li').each(function (i, e) {
+            libpkj.bindElement(e);
+        });
+    }
+
 };
 
 libpkj.bindElement = function (e) {

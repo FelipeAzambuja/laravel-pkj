@@ -2,149 +2,201 @@
 
 namespace FelipeAzambuja;
 
-class JS {
-
-    public function jquery ( $element = null ) {
-        return new jQuery ( $element );
+class JS
+{
+    /**
+     * Return instance of Vue
+     *
+     * @param string $instance
+     *
+     * @return Vue
+     */
+    function vue($instance = 'vue')
+    {
+        return new Vue($instance);
     }
 
-    public function alert ( $content ) {
-        echo 'alert(' . $this->prepare_value ( $content ) . ');' . PHP_EOL;
+
+    /**
+     * Return instance of jquery
+     *
+     * @param string $element
+     *
+     * @return jQuery
+     */
+    public function jquery($element = null)
+    {
+        return new jQuery($element);
     }
 
-    public function confirm ( $content , $done = '' , $page = '' ) {
-        echo 'libpkj.confirm = confirm(' . $this->prepare_value ( $content ) . ');' . PHP_EOL;
-        if ( $page === '' ) {
+    public function alert($content)
+    {
+        echo 'alert(' . $this->prepare_value($content) . ');' . PHP_EOL;
+    }
+
+    public function confirm($content, $done = '', $page = '')
+    {
+        echo 'libpkj.confirm = confirm(' . $this->prepare_value($content) . ');' . PHP_EOL;
+        if ($page === '') {
             echo 'libpkj.call("' . $done . '",{response:libpkj.confirm});' . PHP_EOL;
         } else {
             echo 'libpkj.call("' . $done . '",{response:libpkj.confirm},"' . $page . '");' . PHP_EOL;
         }
     }
 
-    public function console ( $content ) {
-        echo 'console.log(' . $this->prepare_value ( $content ) . ');' . PHP_EOL;
+    public function console($content)
+    {
+        echo 'console.log(' . $this->prepare_value($content) . ');' . PHP_EOL;
     }
 
-    public function setInterval ( $action , $time , $data = [] , $page = '' ) {
-        if ( $page === '' ) {
+    public function setInterval($action, $time, $data = [], $page = '')
+    {
+        if ($page === '') {
             echo 'libpkj.intervals["' . $action . '"] = setInterval(function(){
-                libpkj.call("' . $action . '",' . $this->prepare_value ( $data ) . ');
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ');
             },' . $time . ');' . PHP_EOL;
         } else {
             echo 'libpkj.intervals["' . $action . '"] = setInterval(function(){
-                libpkj.call("' . $action . '",' . $this->prepare_value ( $data ) . ',"' . $page . '");
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ',"' . $page . '");
             },' . $time . ');' . PHP_EOL;
         }
     }
 
-    public function setTimeout ( $action , $time , $data = [] , $page = '' ) {
-        if ( $page === '' ) {
+    public function setTimeout($action, $time, $data = [], $page = '')
+    {
+        if ($page === '') {
             echo 'libpkj.timers["' . $action . '"] = setTimeout(function(){
-                libpkj.call("' . $action . '",' . $this->prepare_value ( $data ) . ');
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ');
             },' . $time . ');' . PHP_EOL;
         } else {
             echo 'libpkj.timers["' . $action . '"] = setTimeout(function(){
-                libpkj.call("' . $action . '",' . $this->prepare_value ( $data ) . ',"' . $page . '");
+                libpkj.call("' . $action . '",' . $this->prepare_value($data) . ',"' . $page . '");
             },' . $time . ');' . PHP_EOL;
         }
     }
 
-    public function var ( $name , $data ) {
-        echo 'libpkj.data["' . $name . '"] = ' . $this->prepare_value ( $data ) . ';' . PHP_EOL;
+    public function var($name, $data)
+    {
+        echo 'libpkj.data["' . $name . '"] = ' . $this->prepare_value($data) . ';' . PHP_EOL;
     }
 
-    public function __call ( $name , $arguments ) {
+    public function __call($name, $arguments)
+    {
         //melhorar arguments
-        $arguments = array_map ( function($value) {
-            return $this->prepare_value ( $value );
-        } , $arguments );
-        echo $name . "(" . implode ( "," , $arguments ) . ");" . PHP_EOL;
+        $arguments = array_map(function ($value) {
+            return $this->prepare_value($value);
+        }, $arguments);
+        echo $name . "(" . implode(",", $arguments) . ");" . PHP_EOL;
     }
 
-    public static function __callStatic ( $name , $arguments ) {
+    public static function __callStatic($name, $arguments)
+    {
         //melhorar arguments
-        $arguments = array_map ( function($value) {
-            return $this->prepare_value ( $value );
-        } , $arguments );
-        echo $name . "(" . implode ( "," , $arguments ) . ");" . PHP_EOL;
+        $arguments = array_map(function ($value) {
+            return $this->prepare_value($value);
+        }, $arguments);
+        echo $name . "(" . implode(",", $arguments) . ");" . PHP_EOL;
     }
 
-    public function prepare_value ( $value ) {
-        return json_encode ( $value , JSON_UNESCAPED_UNICODE );
+    public function prepare_value($value)
+    {
+        return json_encode($value, JSON_UNESCAPED_UNICODE);
     }
-
 }
 
-class jQuery {
+class Vue
+{
+    var $instance;
+    function __construct($instance = 'vue')
+    {
+        $this->instance = $instance;
+    }
+    public function data($name, $value)
+    {
+        echo $this->instance . '.$data.' . $name . ' = ' . js()->prepare_value($value) . ';' . PHP_EOL;
+    }
+    public function call($function, $param)
+    {
+        js()->console('Not implemented');
+    }
+}
+
+class jQuery
+{
 
     var $element;
 
-    public function __construct ( $element = null ) {
+    public function __construct($element = null)
+    {
         $this->element = $element;
     }
 
-    public function __call ( $name , $arguments ) {
-        $arguments = array_map ( function($value) {
-            return json_encode ( $value , JSON_UNESCAPED_UNICODE );
-        } , $arguments );
+    public function __call($name, $arguments)
+    {
+        $arguments = array_map(function ($value) {
+            return json_encode($value, JSON_UNESCAPED_UNICODE);
+        }, $arguments);
 
-        if ( $this->element ) {
-            if ( count ( $arguments ) > 0 ) {
+        if ($this->element) {
+            if (count($arguments) > 0) {
                 //melhorar arguments
-                echo '$("' . $this->element . '").' . $name . "(" . implode ( "," , $arguments ) . ");" . PHP_EOL;
+                echo '$("' . $this->element . '").' . $name . "(" . implode(",", $arguments) . ");" . PHP_EOL;
             } else {
                 echo '$("' . $this->element . '").' . $name . "();" . PHP_EOL;
             }
         } else {
-            if ( count ( $arguments ) > 0 ) {
+            if (count($arguments) > 0) {
                 echo '$' . $name . ".();" . PHP_EOL;
             } else {
                 //melhorar arguments
 
-                echo '$' . $name . ".(" . implode ( "," , $arguments ) . ");" . PHP_EOL;
+                echo '$' . $name . ".(" . implode(",", $arguments) . ");" . PHP_EOL;
             }
         }
     }
-
 }
 
-class UploadParser {
+class UploadParser
+{
 
     private $raw = "";
 
-    function __construct ( $name , $array = null ) {
-        if ( $array === null ) {
+    function __construct($name, $array = null)
+    {
+        if ($array === null) {
             $array = $_FILES;
         }
-        $this->raw = isset ( $array[$name] ) ? $array[$name] : null;
+        $this->raw = isset($array[$name]) ? $array[$name] : null;
     }
 
     /**
      * Get a extension of file
      * @return string
      */
-    function ext () {
-        if ( ! $this->is_ok () ) {
+    function ext()
+    {
+        if (!$this->is_ok()) {
             return false;
         }
-        $ext = explode ( "/" , $this->mime () );
+        $ext = explode("/", $this->mime());
         $ext = $ext[1];
-        if ( $ext === "vnd.oasis.opendocument.spreadsheet" ) {
+        if ($ext === "vnd.oasis.opendocument.spreadsheet") {
             $ext = "ods";
-        } else if ( $ext === "vnd.oasis.opendocument.text" ) {
+        } else if ($ext === "vnd.oasis.opendocument.text") {
             $ext = "odt";
-        } else if ( $ext === "plain" ) {
+        } else if ($ext === "plain") {
             $ext = "txt";
-        } else if ( $ext === "x-7z-compressed" ) {
+        } else if ($ext === "x-7z-compressed") {
             $ext = "7z";
-        } else if ( $ext === "x-rar" ) {
+        } else if ($ext === "x-rar") {
             $ext = "rar";
         }
         return $ext;
     }
 
-    function mime () {
-        if ( ! $this->is_ok () ) {
+    function mime()
+    {
+        if (!$this->is_ok()) {
             return false;
         }
         return $this->raw['type'];
@@ -154,30 +206,33 @@ class UploadParser {
      * Return base64 format of file
      * @return type
      */
-    function base64 () {
-        if ( ! $this->is_ok () ) {
+    function base64()
+    {
+        if (!$this->is_ok()) {
             return false;
         }
-        return base64_encode ( $this->data () );
+        return base64_encode($this->data());
     }
 
     /**
      * Get binary of file
      * @return type
      */
-    function data () {
-        if ( ! $this->is_ok () ) {
+    function data()
+    {
+        if (!$this->is_ok()) {
             return false;
         }
-        return file_get_contents ( $this->raw['tmp_name'] );
+        return file_get_contents($this->raw['tmp_name']);
     }
 
     /**
      * Try a get name of file
      * @return type
      */
-    function name () {
-        if ( ! $this->is_ok () ) {
+    function name()
+    {
+        if (!$this->is_ok()) {
             return false;
         }
         return $this->raw['name'];
@@ -187,7 +242,8 @@ class UploadParser {
      * Get my raw format dont use please
      * @return type
      */
-    function raw () {
+    function raw()
+    {
         return $this->raw;
     }
 
@@ -195,30 +251,35 @@ class UploadParser {
      *
      * @return int size in bytes
      */
-    function size () {
-        if ( ! $this->is_ok () ) {
+    function size()
+    {
+        if (!$this->is_ok()) {
             return false;
         }
         return $this->raw['size'];
     }
 
-    function error_code () {
-        if ( $this->raw === null ) {
+    function error_code()
+    {
+        if ($this->raw === null) {
             return 99;
         }
         return $this->raw['error'];
     }
 
-    function error () {
-        return $this->codeToMessage ( $this->error_code () );
+    function error()
+    {
+        return $this->codeToMessage($this->error_code());
     }
 
-    function is_ok () {
-        return $this->error_code () === 0;
+    function is_ok()
+    {
+        return $this->error_code() === 0;
     }
 
-    private function codeToMessage ( $code ) {
-        switch ( $code ) {
+    private function codeToMessage($code)
+    {
+        switch ($code) {
             case UPLOAD_ERR_OK:
                 $message = 'No error';
             case UPLOAD_ERR_INI_SIZE:
@@ -255,22 +316,23 @@ class UploadParser {
      * @param type $fileName
      * @return boolean
      */
-    function save ( $fileName = '' ) {
-        if ( $fileName === '' ) {
-            $fileName = $this->name ();
+    function save($fileName = '')
+    {
+        if ($fileName === '') {
+            $fileName = $this->name();
         }
-        if ( strpos ( $fileName , '.' ) === false ) {
-            $fileName = $fileName . '.' . $this->ext ();
+        if (strpos($fileName, '.') === false) {
+            $fileName = $fileName . '.' . $this->ext();
         }
-        file_put_contents ( $fileName , $this->data () );
+        file_put_contents($fileName, $this->data());
     }
 
     /**
      *
      * @return \Intervention\Image\Image
      */
-    function image () {
-        return Intervention\Image\ImageManagerStatic::make ( $this->data () );
+    function image()
+    {
+        return Intervention\Image\ImageManagerStatic::make($this->data());
     }
-
 }

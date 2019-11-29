@@ -1,6 +1,7 @@
 <?php
 
 use FelipeAzambuja\jQuery;
+use Illuminate\Foundation\Console\Presets\Vue;
 
 $controllers = [];
 $arquivos = glob('../app/Http/Controllers/*.php');
@@ -42,16 +43,17 @@ foreach ($controllers as $c) {
         }
     }
 }
-function pkj(){
-    echo '<meta name="csrf_token" content="'.csrf_token().'" >';
-    echo '<script src="'.route('libpkj').'" ></script>';
+function pkj()
+{
+    echo '<meta name="csrf_token" content="' . csrf_token() . '" >';
+    echo '<script src="' . route('libpkj') . '" ></script>';
 }
 Route::get('/laravel-pkj/lib', function () {
     ob_start();
     echo 'var libpkj = {};' . PHP_EOL;
     echo 'libpkj.base = "' . url('') . '";' . PHP_EOL;
     //echo 'libpkj.csrf_token = "'.csrf_token().'";'.PHP_EOL;
-    echo file_get_contents(__DIR__.'/libpkj.js');
+    echo file_get_contents(__DIR__ . '/libpkj.js');
     return response(ob_get_clean())->header('Content-type', 'application/javascript');
 })->name('libpkj');
 
@@ -66,8 +68,22 @@ function js()
 {
     return new \FelipeAzambuja\JS();
 }
+/**
+ * Return instance of  Vue
+ *
+ * @param string $instance
+ *
+ * @return \FelipeAzambuja\Vue
+ */
+function vue($instance = 'vue',$name=null,$value='')
+{
+    if($name !== null){
+        (new \FelipeAzambuja\Vue($instance))->data($name,$value);
+    }else{
+        return new \FelipeAzambuja\Vue($instance);
+    }
 
-
+}
 /**
  * Return instance of jquery
  *
@@ -75,7 +91,8 @@ function js()
  *
  * @return \FelipeAzambuja\jQuery
  */
-function jquery($element = null){
+function jquery($element = null)
+{
     return new \FelipeAzambuja\jQuery($element);
 }
 
@@ -84,6 +101,7 @@ function jquery($element = null){
  * @param type $value
  * @return \FelipeAzambuja\UploadParser
  */
-function upload_parser ( $value ) {
-    return new UploadParser ( $value );
+function upload_parser($value)
+{
+    return new UploadParser($value);
 }
