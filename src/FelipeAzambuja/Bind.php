@@ -74,7 +74,13 @@ class JS
             },' . $time . ');' . PHP_EOL;
         }
     }
-
+    public function redirect($to, $data = [])
+    {
+        if (count($data)) {
+            $to .= '?' . http_build_query($data);
+        }
+        echo 'location.href = ' . $to . ';' . PHP_EOL;
+    }
     public function var($name, $data)
     {
         echo 'libpkj.data["' . $name . '"] = ' . $this->prepare_value($data) . ';' . PHP_EOL;

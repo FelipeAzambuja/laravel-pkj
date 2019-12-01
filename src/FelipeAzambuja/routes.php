@@ -1,5 +1,6 @@
 <?php
-
+ignore_user_abort(true);
+use Illuminate\Http\Request;
 use FelipeAzambuja\jQuery;
 use Illuminate\Foundation\Console\Presets\Vue;
 
@@ -75,14 +76,13 @@ function js()
  *
  * @return \FelipeAzambuja\Vue
  */
-function vue($instance = 'vue',$name=null,$value='')
+function vue($instance = 'vue', $name = null, $value = '')
 {
-    if($name !== null){
-        (new \FelipeAzambuja\Vue($instance))->data($name,$value);
-    }else{
+    if ($name !== null) {
+        (new \FelipeAzambuja\Vue($instance))->data($name, $value);
+    } else {
         return new \FelipeAzambuja\Vue($instance);
     }
-
 }
 /**
  * Return instance of jquery
@@ -105,3 +105,44 @@ function upload_parser($value)
 {
     return new UploadParser($value);
 }
+/**
+ * Execute Async functions on Windows
+ *
+ * @param string|self|this $class class name
+ * @param string $function function_name
+ * @param array $data
+ *
+ * @return void
+ */
+function async($class, $function, $data = [])
+{
+    $class = new ReflectionClass($class);
+    $data = [
+        'data' => $data,
+        'class' => $class->name,
+        'function' => $function,
+        '_GET' => $_GET,
+        '_POST' => $_POST
+    ];
+
+    $curl = curl_init(url('/async'));
+    curl_setopt_array($curl, [
+        CURLOPT_TIMEOUT_MS => 5,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query($data),
+        CURLOPT_RETURNTRANSFER => true
+    ]);
+    echo curl_exec($curl);
+    curl_close($curl);
+}
+Route::post('/async', function (Request $form) {
+    ignore_user_abort(true);
+    $f = new ReflectionMethod($form->class, $form->function);
+    foreach ($form->all() as $k => $v) {
+        $form->{$k} = $v;
+    }
+    $form->async = true;
+    $c = (new ReflectionClass($form->class))->newInstance();
+    $f->invokeArgs($c, [$form]);
+    exit();
+});
