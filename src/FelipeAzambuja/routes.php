@@ -11,7 +11,7 @@ foreach ($arquivos as $arquivo) {
     $namespace = '';
     $class = '';
     $functions = [];
-    $path = str_replace(['../app/Http/Controllers/', '../app/Modules/', 'Http/Controllers/', '.php'], '', $arquivo);
+    $path = str_replace(['../app/Http/Controllers/', '../app/Modules/', 'Http/Controllers/', 'Controller','.php',], '', $arquivo);
     $path = '/' . strtolower($path);
     foreach (explode("\n", file_get_contents($arquivo)) as $value) {
         $value = explode(' ', trim($value));
