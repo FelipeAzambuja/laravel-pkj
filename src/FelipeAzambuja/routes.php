@@ -5,45 +5,82 @@ use FelipeAzambuja\jQuery;
 use Illuminate\Foundation\Console\Presets\Vue;
 
 $controllers = [];
-$arquivos = glob('../app/Http/Controllers/*.php');
-$arquivos = array_merge($arquivos, glob('../app/Modules/*/Http/Controllers/*.php'));
-foreach ($arquivos as $arquivo) {
+$arquivos = glob ( '../app/Http/Controllers/*.php' );
+$arquivos = array_merge ( $arquivos , glob ( '../app/Modules/*/Http/Controllers/*.php' ) );
+foreach ( $arquivos as $arquivo ) {
     $namespace = '';
     $class = '';
     $functions = [];
-    $path = str_replace(['../app/Http/Controllers/', '../app/Modules/', 'Http/Controllers/', 'Controller','.php',], '', $arquivo);
-    $path = '/' . strtolower($path);
-    foreach (explode("\n", file_get_contents($arquivo)) as $value) {
-        $value = explode(' ', trim($value));
-        if ($namespace === '' && $value[0] === 'namespace') {
-            $namespace = str_replace(';', '', $value[1]);
+    $path = str_replace ( ['../app/Http/Controllers/' , '../app/Modules/' , 'Http/Controllers/' , 'Controller' , '.php'] , '' , $arquivo );
+    $path = '/' . strtolower ( $path );
+    $prefix = '';// TODO Implantar
+    foreach ( explode ( "\n" , file_get_contents ( $arquivo ) ) as $value ) {
+        $value = explode ( ' ' , trim ( $value ) );
+        if ( $namespace === '' && $value[0] === 'namespace' ) {
+            $namespace = str_replace ( ';' , '' , $value[1] );
         }
-        if ($class === '' && $value[0] === 'class') {
+        if ( $class === '' && $value[0] === 'class' ) {
             $class = $value[1];
         }
-        if ($namespace !== '' && $class !== '') {
-            if ($value[0] === 'function') {
-                $functions[] = trim(explode('(', $value[1])[0]);
+        if ( $namespace !== '' && $class !== '' ) {
+            if ( $value[0] === 'function' ) {
+                $functions[] = trim ( explode ( '(' , $value[1] )[0] );
             }
         }
     }
+    $class_doc = (new ReflectionClass ( $namespace . '\\' . $class ));
+    foreach ( $functions as $k => $v ) {
+        $doc = (new ReflectionMethod ( $namespace . '\\' . $class , $v ) )->getDocComment ();
+        $doc = explode ( "\n" , $doc );
+        $name = array_values ( array_filter ( $doc , function($v) {
+                    return strpos ( $v , '@name' ) > -1;
+                } ) );
+        if ( count ( $name ) > 0 ) {
+            $name = $name[0];
+            $name = explode ( ' ' , $name );
+            $name = $name[array_search ( '@name' , $name ) + 1];
+        } else {
+            $name = str_replace ( "/" , '.' , substr ( $path , 1 ) . '.' . $v );
+        }
+
+        $middleware = array_values ( array_filter ( $doc , function($v) {
+                    return strpos ( $v , '@mid' ) > -1;
+                } ) );
+        if ( count ( $middleware ) > 0 ) {
+            $middleware = $middleware[0];
+            $middleware = str_replace ( '@middleware' , '@mid' , $middleware );
+            $middleware = explode ( ' ' , $middleware );
+            $middleware = $middleware[array_search ( '@mid' , $middleware ) + 1];
+        } else {
+            $middleware = '';
+        }
+
+        $functions[$k] = [
+            'action' => $v ,
+            'middleware' => $middleware ,
+            'name' => $name
+        ];
+    }
     $controllers[] = [
-        'file' => $arquivo,
-        'class' => $class,
-        'namespace' => '\\' . $namespace,
-        'functions' => $functions,
-        'path' => $path
+        'file' => $arquivo ,
+        'class' => $class ,
+        'namespace' => '\\' . $namespace ,
+        'functions' => $functions ,
+        'path' => $path ,
+        'prefix' => $prefix
     ];
 }
-foreach ($controllers as $c) {
-    foreach ($c['functions'] as $f) {
-        if ($f === 'index') {
-            Route::any($c['path'], $c['namespace'] . '\\' . $c['class'] . '@index')->middleware('web');
+foreach ( $controllers as $c ) {
+    foreach ( $c['functions'] as $f ) {
+        $middleware = $f['middleware'] ?? 'web';
+        if ( $f['action'] === 'index' ) {
+            Route::any ( $c['path'] , $c['namespace'] . '\\' . $c['class'] . '@index' )->middleware ( $middleware )->name ( $f['name'] );
         } else {
-            Route::any($c['path'] . '/' . $f, $c['namespace'] . '\\' . $c['class'] . '@' . $f)->middleware('web');
+            Route::any ( $c['path'] . '/' . $f['action'] , $c['namespace'] . '\\' . $c['class'] . '@' . $f['action'] )->middleware ( $middleware )->name ( $f['name'] );
         }
     }
 }
+
 function pkj()
 {
     echo '<meta name="csrf_token" content="' . csrf_token() . '" >';
