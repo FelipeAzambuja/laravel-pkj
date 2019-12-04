@@ -72,7 +72,7 @@ foreach ( $arquivos as $arquivo ) {
 }
 foreach ( $controllers as $c ) {
     foreach ( $c['functions'] as $f ) {
-        $middleware = $f['middleware'] ?? 'web';
+        $middleware = ($f['middleware'] === '') ? 'web' : $f['middleware'];
         if ( $f['action'] === 'index' ) {
             Route::any ( $c['path'] , $c['namespace'] . '\\' . $c['class'] . '@index' )->middleware ( $middleware )->name ( $f['name'] );
         } else {
