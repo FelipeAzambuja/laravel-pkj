@@ -22,7 +22,7 @@ libpkj.onload = function () {
             }
         }
     });
-    $(document).ready(function(){
+    $(document).ready(function () {
         observer.observe(document.body, {
             attributes: true,
             childList: true,
@@ -66,7 +66,8 @@ libpkj.bindElement = function (e) {
             if (e.tagName === 'FORM' && event_name === 'load') {
                 libpkj._element_call(e, event_name);
             } else {
-                je.on(event_name, function () {
+                je.on(event_name, function (ev) {
+                    ev.preventDefault();
                     libpkj._element_call(e, event_name);
                 });
             }
@@ -98,6 +99,7 @@ libpkj.call = function (f, data = [], page) {
         const element = libpkj.data[key];
         data[key] = element;
     }
+    url = url.replace(/#/g, '');
     data = Object.assign({}, data);
     $.post(url, data, function (response) {
         eval(response);
@@ -136,7 +138,7 @@ libpkj._element_call = function (e, event_name) {
         if (window[i] !== null) {
             try {
                 if (window[i].$data !== undefined) {
-                    data['vue_'.i] = JSON.parse(JSON.stringify(window[i].$data));
+                    data['vue_' + i] = JSON.parse(JSON.stringify(window[i].$data));
                 }
             } catch (e) {
 
@@ -161,6 +163,7 @@ libpkj._element_call = function (e, event_name) {
         url = page + '/' + cmd;
     }
     data = Object.assign({}, data);
+    url = url.replace(/#/g, '');
     $(form).ajaxSubmit({
         url: url,
         type: 'POST',
